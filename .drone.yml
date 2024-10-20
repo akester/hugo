@@ -10,4 +10,4 @@ steps:
     - packer build .
 - name: push
   commands:
-    - docker push registry.gatewayks.net/hugo/hguo:latest
+    - docker push registry.gatewayks.net/hugo/hugo:latest
