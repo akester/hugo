@@ -36,7 +36,7 @@ build {
       "set -e",
       "set -x",
       "apt-get -y install wget",
-      "wget -O /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.136.2/hugo_0.136.2_linux-amd64.deb",
+      "wget -O /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.136.2/hugo_extended_0.136.2_linux-amd64.deb",
       "dpkg -i /tmp/hugo.deb",
     ]
     inline_shebang   = "/bin/bash -e"
