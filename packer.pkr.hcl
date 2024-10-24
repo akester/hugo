@@ -49,7 +49,7 @@ build {
     inline           = [
       "set -e",
       "set -x",
-      "rm /etc/apt/apt.conf.d/01proxy",
+      "rm -f /etc/apt/apt.conf.d/01proxy",
       "apt update",
       "apt autoremove",
       "apt clean",
