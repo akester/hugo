@@ -58,7 +58,7 @@ build {
   }
 
   post-processor "docker-tag" {
-    repository = "registry.gatewayks.net/hugo/hugo"
+    repository = "akester/hugo"
     tags       = [
       "${var.version}"
     ]
