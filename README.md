@@ -35,8 +35,6 @@ steps:
 
 ## Building
 
-I'm working to rebuild this container using Alpine to make it lighter weight.
-
 This container is built using Packer and has a makefile, run `make` to start a
 build.
 
