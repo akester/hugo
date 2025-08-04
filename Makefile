@@ -7,4 +7,4 @@ login:
 
 push-remote: login
 	docker push akester/hugo:latest
-	docker push akester/hugo:hugo-${HUGO_VERSION}
+	docker push "akester/hugo:${HUGO_VERSION}"
