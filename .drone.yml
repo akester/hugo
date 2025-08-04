@@ -5,6 +5,8 @@ name: build
 
 steps:
 - name: build
+  environment:
+    HUGO_VERSION: "0.148.2"
   commands:
     - make
 

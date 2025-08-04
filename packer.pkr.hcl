@@ -1,66 +1,53 @@
 variable "version" {
   type    = string
-  default = "latest"
+  default = ""
 }
 
-source "docker" "debian" {
+source "docker" "alpine" {
   commit  = true
-  image   = "debian:12"
+  image   = "alpine:latest"
 }
 
 build {
-  sources = ["source.docker.debian"]
+  sources = ["source.docker.alpine"]
 
+  # Upgrade the software
   provisioner "shell" {
-    environment_vars = [
-      "DEBIAN_FRONTEND=noninteractive",
-      "DEBIAN_PRIORITY=critical"
+    inline = [
+      "apk update",
+      "apk upgrade",
     ]
-    inline           = [
-      "set -e",
-      "set -x",
-      "apt-get update",
-      "apt-get -y dist-upgrade",
-    ]
-    inline_shebang   = "/bin/bash -e"
   }
 
-
+  # Install wget to download hugo
   provisioner "shell" {
-    environment_vars = [
-      "DEBIAN_FRONTEND=noninteractive",
-      "DEBIAN_PRIORITY=critical"
+    inline = [
+      "apk add --no-cache wget",
     ]
-    inline           = [
-      "set -e",
-      "set -x",
-      "apt-get -y install wget",
-      "wget -O /tmp/hugo.deb https://github.com/gohugoio/hugo/releases/download/v0.136.2/hugo_extended_0.136.2_linux-amd64.deb",
-      "dpkg -i /tmp/hugo.deb",
-    ]
-    inline_shebang   = "/bin/bash -e"
   }
 
+  # Download and install hugo
   provisioner "shell" {
-    environment_vars = [
-      "DEBIAN_FRONTEND=noninteractive",
-      "DEBIAN_PRIORITY=critical"
-    ]
     inline           = [
-      "set -e",
-      "set -x",
-      "rm -f /etc/apt/apt.conf.d/01proxy",
-      "apt update",
-      "apt autoremove",
-      "apt clean",
+      "wget -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.version}/hugo_${var.version}_linux-amd64.tar.gz",
+      "cd /tmp && tar -xzvf hugo.tar.gz",
+      "mv /tmp/hugo /usr/bin/hugo",
+      "chmod 0755 /usr/bin/hugo",
     ]
-    inline_shebang   = "/bin/bash -e"
+  }
+
+  # Remove APK cache for space
+  provisioner "shell" {
+    inline = [
+      "rm -rf /var/cache/apk/*",
+    ]
   }
 
   post-processor "docker-tag" {
     repository = "akester/hugo"
     tags       = [
-      "${var.version}"
+      "${var.version}",
+      "latest",
     ]
   }
 }
