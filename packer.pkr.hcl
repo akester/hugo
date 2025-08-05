@@ -29,7 +29,7 @@ build {
   # Download and install hugo
   provisioner "shell" {
     inline           = [
-      "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.version}/hugo_${var.version}_linux-amd64.tar.gz",
+      "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.version}/hugo_extended_${var.version}_linux-amd64.tar.gz",
       "cd /tmp && tar -xzvf hugo.tar.gz",
       "mv /tmp/hugo /usr/bin/hugo",
       "chmod 0755 /usr/bin/hugo",
