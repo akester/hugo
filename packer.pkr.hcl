@@ -3,9 +3,9 @@ variable "version" {
   default = ""
 }
 
-source "docker" "alpine" {
-  commit  = true
-  image   = "alpine:latest"
+source "docker" "debian" {
+  commit = true
+  image  = "debian:13"
   changes = [
     "ENTRYPOINT [\"/bin/sh\", \"-c\"]",
     "WORKDIR [\"/tmp\"]"
@@ -13,57 +13,59 @@ source "docker" "alpine" {
 }
 
 build {
-  sources = ["source.docker.alpine"]
+  sources = ["source.docker.debian"]
 
-  # Upgrade the software
   provisioner "shell" {
-    inline = [
-      "apk update",
-      "apk upgrade",
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "DEBIAN_PRIORITY=critical"
     ]
+    inline = [
+      "set -e",
+      "set -x",
+      "apt-get update",
+      "apt-get -y dist-upgrade",
+    ]
+    inline_shebang = "/bin/bash -e"
   }
 
-  # Install tools to download hugo
   provisioner "shell" {
-    inline = [
-      "apk add --no-cache go git gcc g++ musl-dev",
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "DEBIAN_PRIORITY=critical"
     ]
+    inline = [
+      "set -e",
+      "set -x",
+      "apt-get -y install wget",
+      "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.version}/hugo_extended_${var.version}_linux-amd64.tar.gz",
+      "cd /tmp && tar -xzvf hugo.tar.gz",
+      "mv /tmp/hugo /usr/bin/hugo",
+      "chmod 0755 /usr/bin/hugo",
+      "rm /tmp/hugo.tar.gz",
+    ]
+    inline_shebang = "/bin/bash -e"
   }
 
-  # Download and install hugo
   provisioner "shell" {
-    inline           = [
-      "export CGO_ENABLED=1",
-      "go install --tags extended github.com/gohugoio/hugo@v${var.version}",
-      "mv /root/go/bin/hugo /usr/local/bin/",
-
-      # "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.version}/hugo_extended_${var.version}_Linux-64bit.tar.gz",
-      # "cd /tmp && tar -xzvf hugo.tar.gz",
-      # "mv /tmp/hugo /usr/bin/hugo",
-      # "chmod 0755 /usr/bin/hugo",
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "DEBIAN_PRIORITY=critical"
     ]
-  }
-
-  # Remove APK cache for space
-  provisioner "shell" {
     inline = [
-      "rm -rf /var/cache/apk/*",
+      "set -e",
+      "set -x",
+      "rm -f /etc/apt/apt.conf.d/01proxy",
+      "apt update",
+      "apt autoremove",
+      "apt clean",
     ]
-  }
-
-  # Remove root home
-  provisioner "shell" {
-    inline = [
-      "rm -rf /root/*",
-      "rm -rf /root/.*",
-      "rm -rf /usr/lib/go",
-      "apk del go git musl-dev",
-    ]
+    inline_shebang = "/bin/bash -e"
   }
 
   post-processor "docker-tag" {
     repository = "akester/hugo"
-    tags       = [
+    tags = [
       "${var.version}",
       "latest",
     ]
@@ -74,7 +76,7 @@ packer {
   required_plugins {
     docker = {
       version = ">= 0.0.7"
-      source = "github.com/hashicorp/docker"
+      source  = "github.com/hashicorp/docker"
     }
   }
 }
