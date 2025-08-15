@@ -56,6 +56,8 @@ build {
     inline = [
       "rm -rf /root/*",
       "rm -rf /root/.*",
+      "rm -rf /usr/lib/go",
+      "apk del go git musl-dev",
     ]
   }
 
