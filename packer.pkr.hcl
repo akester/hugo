@@ -54,7 +54,8 @@ build {
   # Remove root home
   provisioner "shell" {
     inline = [
-      "rm -rf /root/go",
+      "rm -rf /root/*",
+      "rm -rf /root/.*",
     ]
   }
 
