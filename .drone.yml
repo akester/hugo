@@ -6,7 +6,7 @@ name: build
 steps:
 - name: build
   environment:
-    HUGO_VERSION: "0.134.0"
+    HUGO_VERSION: "0.136.2"
   commands:
     - make
 
@@ -14,7 +14,7 @@ steps:
   environment:
     DOCKER_TOKEN:
       from_secret: DOCKER_TOKEN_AKESTER
-    HUGO_VERSION: "0.134.0"
+    HUGO_VERSION: "0.136.2"
   depends_on:
     - build
   commands:
