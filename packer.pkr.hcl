@@ -6,6 +6,10 @@ variable "version" {
 source "docker" "alpine" {
   commit  = true
   image   = "alpine:latest"
+  changes = [
+    "ENTRYPOINT [\"/bin/sh\", \"-c\"]",
+    "WORKDIR [\"/tmp\"]"
+  ]
 }
 
 build {
@@ -19,20 +23,24 @@ build {
     ]
   }
 
-  # Install wget to download hugo
+  # Install tools to download hugo
   provisioner "shell" {
     inline = [
-      "apk add --no-cache wget",
+      "apk add --no-cache go git gcc g++ musl-dev",
     ]
   }
 
   # Download and install hugo
   provisioner "shell" {
     inline           = [
-      "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.version}/hugo_extended_${var.version}_linux-amd64.tar.gz",
-      "cd /tmp && tar -xzvf hugo.tar.gz",
-      "mv /tmp/hugo /usr/bin/hugo",
-      "chmod 0755 /usr/bin/hugo",
+      "export CGO_ENABLED=1",
+      "go install --tags extended github.com/gohugoio/hugo@v${var.version}",
+      "mv /root/go/bin/hugo /usr/local/bin/",
+
+      # "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.version}/hugo_extended_${var.version}_Linux-64bit.tar.gz",
+      # "cd /tmp && tar -xzvf hugo.tar.gz",
+      # "mv /tmp/hugo /usr/bin/hugo",
+      # "chmod 0755 /usr/bin/hugo",
     ]
   }
 
@@ -40,6 +48,13 @@ build {
   provisioner "shell" {
     inline = [
       "rm -rf /var/cache/apk/*",
+    ]
+  }
+
+  # Remove root home
+  provisioner "shell" {
+    inline = [
+      "rm -rf /root/go",
     ]
   }
 
