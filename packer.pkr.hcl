@@ -7,7 +7,7 @@ source "docker" "debian" {
   commit = true
   image  = "debian:13"
   changes = [
-    "ENTRYPOINT [\"/bin/sh\", \"-c\"]",
+    "ENTRYPOINT [\"\"]",
     "WORKDIR [\"/tmp\"]"
   ]
 }
