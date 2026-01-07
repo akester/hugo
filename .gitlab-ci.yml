@@ -5,10 +5,9 @@ stages:
 variables:
   HUGO_VERSION: "0.136.2"
 
-tags:
-  - exec
-
 build:
   stage: build
+  tags:
+    - exec
   script:
     - make
