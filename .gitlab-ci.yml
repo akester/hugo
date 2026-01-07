@@ -1,0 +1,14 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  HUGO_VERSION: "0.136.2"
+
+tags:
+  - exec
+
+build:
+  stage: build
+  script:
+    - make
