@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  HUGO_VERSION: "0.136.2"
+  HUGO_VERSION: "0.155.3"
 
 build:
   stage: build
