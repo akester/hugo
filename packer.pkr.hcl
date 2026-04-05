@@ -52,7 +52,7 @@ sources = [
     inline = [
       "set -e",
       "set -x",
-      "apt-get -y install wget",
+      "apt-get -y install wget golang",
   ]
     inline_shebang = "/bin/bash -e"
   }
