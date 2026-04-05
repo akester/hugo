@@ -1,16 +1,33 @@
+variables:
+  PKR_VAR_version: $CI_COMMIT_BRANCH
+  PKR_VAR_hugo_version: "0.155.3"
+
 stages:
   - build
   - deploy
 
-variables:
-  HUGO_VERSION: "0.155.3"
-
-build:
+build-x86:
   stage: build
   tags:
     - exec
   script:
-    - make
-    - make push-remote
-  only:
-    - master
+    - make build-x86
+    - make push-x86
+
+build-arm:
+  stage: build
+  tags:
+    - exec-arm
+  script:
+    - make build-arm
+    - make push-arm
+
+push-manifest:
+  stage: deploy
+  tags:
+    - exec
+  dependencies:
+    - build-x86
+    - build-arm
+  script:
+    - make push-manifest

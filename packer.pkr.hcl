@@ -1,9 +1,12 @@
 variable "version" {
   type    = string
-  default = ""
 }
 
-source "docker" "debian" {
+variable "hugo_version" {
+  type    = string
+}
+
+source "docker" "debian-amd64" {
   commit = true
   image  = "debian:13"
   changes = [
@@ -12,8 +15,20 @@ source "docker" "debian" {
   ]
 }
 
+source "docker" "debian-arm64" {
+  commit = true
+  image  = "arm64v8/debian:13"
+  changes = [
+    "ENTRYPOINT [\"\"]",
+    "WORKDIR [\"/tmp\"]"
+  ]
+}
+
 build {
-  sources = ["source.docker.debian"]
+sources = [
+    "source.docker.debian-amd64",
+    "source.docker.debian-arm64"
+  ]
 
   provisioner "shell" {
     environment_vars = [
@@ -38,7 +53,33 @@ build {
       "set -e",
       "set -x",
       "apt-get -y install wget",
-      "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.version}/hugo_extended_${var.version}_linux-amd64.tar.gz",
+  ]
+    inline_shebang = "/bin/bash -e"
+  }
+
+  # Download the correct exec for our arch
+  provisioner "shell" {
+    inline = [
+      "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.hugo_version}/hugo_extended_${var.hugo_version}_linux-amd64.tar.gz",
+    ]
+    inline_shebang = "/bin/bash -e"
+    only = ["docker.debian-amd64"]
+
+  }
+  provisioner "shell" {
+    inline = [
+      "wget -nv -O /tmp/hugo.tar.gz  https://github.com/gohugoio/hugo/releases/download/v${var.hugo_version}/hugo_extended_${var.hugo_version}_linux-arm64.tar.gz",
+    ]
+    inline_shebang = "/bin/bash -e"
+    only = ["docker.debian-arm64"]
+  }
+
+  provisioner "shell" {
+    environment_vars = [
+      "DEBIAN_FRONTEND=noninteractive",
+      "DEBIAN_PRIORITY=critical"
+    ]
+    inline = [
       "cd /tmp && tar -xzvf hugo.tar.gz",
       "mv /tmp/hugo /usr/bin/hugo",
       "chmod 0755 /usr/bin/hugo",
@@ -66,8 +107,7 @@ build {
   post-processor "docker-tag" {
     repository = "akester/hugo"
     tags = [
-      "${var.version}",
-      "latest",
+      "${source.name}-${var.version}",
     ]
   }
 }
