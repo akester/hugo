@@ -1,6 +1,6 @@
 variables:
   PKR_VAR_version: $CI_COMMIT_BRANCH
-  PKR_VAR_hugo_version: "0.160.0"
+  PKR_VAR_hugo_version: "0.136.2"
 
 stages:
   - build
